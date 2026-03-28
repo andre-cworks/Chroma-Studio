@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chroma Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
@@ -60,6 +63,16 @@
         </div>
       </header>
 
+      <!-- Harmony Mode Selector — lives above the wheel in both layouts -->
+      <div class="mode-section">
+        <div class="tab-bar" role="tablist">
+          <button class="tab-btn active" data-tab="wheel" role="tab" aria-selected="true">Wheel</button>
+          <button class="tab-btn" data-tab="light" role="tab" aria-selected="false">Light</button>
+          <button class="tab-btn" data-tab="concept" role="tab" aria-selected="false">Concept</button>
+        </div>
+        <div id="mode-grid" class="mode-grid"></div>
+      </div>
+
       <div class="wheel-wrapper">
         <div class="wheel-container">
           <canvas id="color-wheel"></canvas>
@@ -97,18 +110,8 @@
       </div>
     </main>
 
-    <!-- RIGHT: Mode Tabs + Palette + Preview + Export -->
+    <!-- RIGHT: Palette + Preview + Export -->
     <section class="right-panel">
-
-      <!-- Harmony Mode Selector -->
-      <div class="mode-section">
-        <div class="tab-bar" role="tablist">
-          <button class="tab-btn active" data-tab="wheel" role="tab" aria-selected="true">Wheel</button>
-          <button class="tab-btn" data-tab="light" role="tab" aria-selected="false">Light</button>
-          <button class="tab-btn" data-tab="concept" role="tab" aria-selected="false">Concept</button>
-        </div>
-        <div id="mode-grid" class="mode-grid"></div>
-      </div>
 
       <!-- Palette Panel -->
       <div class="palette-section">
@@ -159,6 +162,129 @@
 
     </section>
   </div>
+
+  <!-- Contrast Checker -->
+  <section id="contrast-section" class="contrast-section">
+    <button id="contrast-toggle" class="prompt-toggle" aria-expanded="false">
+      <div class="prompt-toggle-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" stroke="currentColor"/>
+          <path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>Contrast Checker</span>
+      </div>
+      <span id="cc-pill" class="cc-pill"></span>
+      <svg id="contrast-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="contrast-body" class="prompt-body" aria-hidden="true">
+      <div class="contrast-inner">
+        <div id="cc-summary" class="cs-summary"></div>
+        <div id="cc-safe"    class="cs-safe"></div>
+        <div id="cc-grid"    class="cc-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Logo Creator -->
+  <section id="logo-section" class="logo-section">
+    <button id="logo-toggle" class="prompt-toggle" aria-expanded="false">
+      <div class="prompt-toggle-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 2 17 12 22 22 17 22 7 12 2"/>
+        </svg>
+        <span>Logo Creator</span>
+      </div>
+      <svg id="logo-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="logo-body" class="prompt-body" aria-hidden="true">
+      <div class="logo-inner">
+
+        <div class="logo-controls">
+          <div class="logo-control-row">
+            <label for="logo-text-input">Brand Name</label>
+            <input type="text" id="logo-text-input" placeholder="Your Brand" maxlength="32" value="Your Brand" />
+          </div>
+
+          <div class="logo-control-row">
+            <label>
+              Typography
+              <span class="logo-font-badge" id="logo-font-badge">Inter</span>
+            </label>
+            <div class="logo-font-row">
+              <select id="logo-font-select" class="logo-select"></select>
+              <button id="logo-suggest-font" class="btn-secondary">✦ Suggest</button>
+            </div>
+            <span id="logo-font-status" class="logo-font-status"></span>
+          </div>
+
+          <div class="logo-control-row">
+            <label>Form</label>
+            <div id="logo-forms" class="logo-btn-group"></div>
+          </div>
+
+          <div class="logo-control-row">
+            <label>Color Mode</label>
+            <div id="logo-color-modes" class="logo-btn-group"></div>
+          </div>
+
+          <div class="logo-control-row" id="logo-layout-row" style="display:none">
+            <label>Layout</label>
+            <div class="logo-layout-toggle">
+              <button class="logo-layout-btn active" data-layout="horizontal">⟷ Horizontal</button>
+              <button class="logo-layout-btn" data-layout="vertical">↕ Vertical</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="logo-canvas-wrap">
+          <canvas id="logo-canvas" class="logo-canvas"></canvas>
+        </div>
+
+        <div class="logo-export-row">
+          <button id="logo-export-png" class="btn-secondary">Export PNG</button>
+          <button id="logo-export-svg" class="btn-secondary">Export SVG</button>
+          <span id="logo-export-status" class="logo-font-status"></span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Moodboard -->
+  <section id="moodboard-section" class="moodboard-section">
+    <button id="moodboard-toggle" class="prompt-toggle" aria-expanded="false">
+      <div class="prompt-toggle-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/>
+          <rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>
+        </svg>
+        <span>AI Moodboard</span>
+      </div>
+      <svg id="moodboard-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="moodboard-body" class="prompt-body" aria-hidden="true">
+      <div class="moodboard-inner">
+        <p class="moodboard-desc">
+          A client-ready visual composition built entirely from your palette — solid color blocks, gradients,
+          geometric patterns, typographic tiles, and a 60&thinsp;·&thinsp;30&thinsp;·&thinsp;10 ratio bar.
+          AI writes the board title, phrase, material labels, and mood words.
+          <small>Uses the Anthropic API key entered in the <em>AI Prompt Generator</em> section below.</small>
+        </p>
+        <div class="moodboard-toolbar">
+          <button id="generate-moodboard" class="btn-primary">Generate Moodboard</button>
+          <button id="regenerate-moodboard" class="btn-secondary" style="display:none">Regenerate</button>
+          <button id="export-moodboard" class="btn-secondary" style="display:none">Export PNG</button>
+        </div>
+        <div id="moodboard-status" class="prompt-status hidden"></div>
+        <div id="moodboard-dirty" class="moodboard-dirty" style="display:none">
+          ✦ Palette changed — click Regenerate to refresh.
+        </div>
+        <div id="moodboard-canvas-wrap" class="moodboard-canvas-wrap" style="display:none">
+          <canvas id="moodboard-canvas" class="moodboard-canvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Prompt Generator -->
   <section id="prompt-section" class="prompt-section">

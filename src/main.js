@@ -4,6 +4,13 @@ import { ColorWheel } from './colorWheel.js';
 import { loadPalettes, savePalettes, createPalette } from './storage.js';
 import { handleExport } from './export.js';
 import { CONTEXTS, MOODS, generatePrompt } from './promptGenerator.js';
+import { ensureFonts, generateMoodboardContent, drawMoodboard, exportMoodboardPNG } from './moodboard.js';
+import { updatePill, renderFull as renderContrastFull } from './contrast.js';
+import {
+  FONT_POOL, LOGO_FORMS, COLOR_MODES,
+  loadGoogleFont, suggestFont,
+  drawLogoCanvas, exportLogoPNG, generateLogoSVG,
+} from './logoCreator.js';
 
 // ── State ─────────────────────────────────────────────────────────────
 
@@ -19,6 +26,14 @@ const state = {
   promptContext: 'Branding',
   promptMoods:   [],
   generatedPrompt: '',
+  moodboardContent: null,   // {title, phrase, textures, moodWords} | null
+  moodboardDirty: false,
+  contrastOpen: false,
+  logoOpen:      false,
+  logoFont:      'Inter',
+  logoForm:      'wordmark',
+  logoColorMode: 'primary',
+  logoLayout:    'horizontal',
 };
 
 let wheel = null;
@@ -40,6 +55,7 @@ function init() {
 
   buildModeGrids();
   buildPromptControls();
+  buildLogoCreator();
   bindEvents();
   loadTheme();
 
@@ -73,10 +89,26 @@ function updateAll() {
   updatePromptStrip();
   updateSlidersGradients();
 
-  // If prompt is open, invalidate generated prompt
+  // Invalidate generated prompt when palette changes
   if (state.generatedPrompt) {
     state.generatedPrompt = '';
     renderGeneratedPrompt();
+  }
+
+  // Contrast checker — pill always live, grid only if open
+  updatePill(document.getElementById('cc-pill'), currentPalette);
+  if (state.contrastOpen) renderContrast();
+
+  // Re-render logo if open
+  if (state.logoOpen) renderLogo();
+
+  // Mark moodboard as stale (don't redraw — it's a snapshot)
+  if (state.moodboardContent !== null && !state.moodboardDirty) {
+    state.moodboardDirty = true;
+    const dirty = document.getElementById('moodboard-dirty');
+    if (dirty) dirty.style.display = '';
+    const regen = document.getElementById('regenerate-moodboard');
+    if (regen) regen.style.display = '';
   }
 }
 
@@ -463,6 +495,69 @@ function renderGeneratedPrompt() {
   }
 }
 
+// ── Logo Creator ──────────────────────────────────────────────────────
+
+function buildLogoCreator() {
+  // Font selector
+  const fontSelect = document.getElementById('logo-font-select');
+  FONT_POOL.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value       = f.name;
+    opt.textContent = `${f.name} (${f.style})`;
+    if (f.name === state.logoFont) opt.selected = true;
+    fontSelect.appendChild(opt);
+  });
+
+  // Form buttons
+  const formsEl = document.getElementById('logo-forms');
+  LOGO_FORMS.forEach(({ key, label }) => {
+    const btn = document.createElement('button');
+    btn.className    = 'tag-btn';
+    btn.dataset.form = key;
+    btn.textContent  = label;
+    if (key === state.logoForm) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      state.logoForm = key;
+      formsEl.querySelectorAll('.tag-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.form === key));
+      document.getElementById('logo-layout-row').style.display =
+        key === 'icon-wordmark' ? '' : 'none';
+      renderLogo();
+    });
+    formsEl.appendChild(btn);
+  });
+
+  // Color mode buttons
+  const modesEl = document.getElementById('logo-color-modes');
+  COLOR_MODES.forEach(({ key, label }) => {
+    const btn = document.createElement('button');
+    btn.className     = 'tag-btn';
+    btn.dataset.cmode = key;
+    btn.textContent   = label;
+    if (key === state.logoColorMode) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      state.logoColorMode = key;
+      modesEl.querySelectorAll('.tag-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.cmode === key));
+      renderLogo();
+    });
+    modesEl.appendChild(btn);
+  });
+}
+
+function renderLogo() {
+  if (!state.logoOpen) return;
+  const canvas = document.getElementById('logo-canvas');
+  drawLogoCanvas(canvas, {
+    palette:   currentPalette,
+    text:      document.getElementById('logo-text-input').value,
+    font:      state.logoFont,
+    form:      state.logoForm,
+    colorMode: state.logoColorMode,
+    layout:    state.logoLayout,
+  });
+}
+
 // ── Sidebar ────────────────────────────────────────────────────────────
 
 function toggleSidebar() {
@@ -569,6 +664,18 @@ function bindEvents() {
     applyTheme(isLight ? 'dark' : 'light');
   });
 
+  // Contrast toggle
+  document.getElementById('contrast-toggle').addEventListener('click', () => {
+    state.contrastOpen = !state.contrastOpen;
+    const body  = document.getElementById('contrast-body');
+    const arrow = document.getElementById('contrast-arrow');
+    body.classList.toggle('open', state.contrastOpen);
+    body.setAttribute('aria-hidden', !state.contrastOpen);
+    arrow.classList.toggle('rotated', state.contrastOpen);
+    document.getElementById('contrast-toggle').setAttribute('aria-expanded', state.contrastOpen);
+    if (state.contrastOpen) renderContrast();
+  });
+
   // Prompt toggle
   document.getElementById('prompt-toggle').addEventListener('click', () => {
     state.promptOpen = !state.promptOpen;
@@ -620,6 +727,146 @@ function bindEvents() {
   // Restore API key
   const savedKey = localStorage.getItem('chroma-api-key');
   if (savedKey) document.getElementById('api-key-input').value = savedKey;
+
+  // ── Logo Creator ────────────────────────────────────────────────
+  document.getElementById('logo-toggle').addEventListener('click', async () => {
+    state.logoOpen = !state.logoOpen;
+    const body  = document.getElementById('logo-body');
+    const arrow = document.getElementById('logo-arrow');
+    body.classList.toggle('open', state.logoOpen);
+    body.setAttribute('aria-hidden', !state.logoOpen);
+    arrow.classList.toggle('rotated', state.logoOpen);
+    document.getElementById('logo-toggle').setAttribute('aria-expanded', state.logoOpen);
+    if (state.logoOpen) {
+      renderLogo(); // immediate render with whatever font is cached
+      await loadGoogleFont(state.logoFont);
+      renderLogo(); // re-render once font is confirmed loaded
+    }
+  });
+
+  document.getElementById('logo-text-input').addEventListener('input', renderLogo);
+
+  document.getElementById('logo-font-select').addEventListener('change', async e => {
+    state.logoFont = e.target.value;
+    document.getElementById('logo-font-badge').textContent = state.logoFont;
+    const status = document.getElementById('logo-font-status');
+    status.textContent = 'Loading font…';
+    status.classList.remove('error');
+    await loadGoogleFont(state.logoFont);
+    status.textContent = '';
+    renderLogo();
+  });
+
+  document.querySelectorAll('.logo-layout-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.logoLayout = btn.dataset.layout;
+      document.querySelectorAll('.logo-layout-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.layout === state.logoLayout));
+      renderLogo();
+    });
+  });
+
+  document.getElementById('logo-suggest-font').addEventListener('click', async () => {
+    const apiKey = localStorage.getItem('chroma-api-key') || '';
+    const status = document.getElementById('logo-font-status');
+    status.textContent = 'Asking AI…';
+    status.classList.remove('error');
+    try {
+      const suggested = await suggestFont({
+        apiKey,
+        colors:   currentPalette,
+        modeName: MODES[state.mode].label,
+      });
+      state.logoFont = suggested;
+      document.getElementById('logo-font-badge').textContent  = suggested;
+      document.getElementById('logo-font-select').value = suggested;
+      status.textContent = 'Loading font…';
+      await loadGoogleFont(suggested);
+      status.textContent = '';
+      renderLogo();
+    } catch (err) {
+      status.textContent = `Error: ${err.message}`;
+      status.classList.add('error');
+    }
+  });
+
+  document.getElementById('logo-export-png').addEventListener('click', () => {
+    const canvas = document.getElementById('logo-canvas');
+    const name   = document.getElementById('logo-text-input').value.trim() || 'logo';
+    exportLogoPNG(canvas, name);
+  });
+
+  document.getElementById('logo-export-svg').addEventListener('click', () => {
+    const name = document.getElementById('logo-text-input').value.trim() || 'logo';
+    const svg  = generateLogoSVG({
+      palette:   currentPalette,
+      text:      document.getElementById('logo-text-input').value,
+      font:      state.logoFont,
+      form:      state.logoForm,
+      colorMode: state.logoColorMode,
+    });
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = name + '.svg'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ── Moodboard ────────────────────────────────────────────────────
+  document.getElementById('moodboard-toggle').addEventListener('click', () => {
+    const open  = document.getElementById('moodboard-body').classList.toggle('open');
+    document.getElementById('moodboard-body').setAttribute('aria-hidden', !open);
+    document.getElementById('moodboard-arrow').classList.toggle('rotated', open);
+    document.getElementById('moodboard-toggle').setAttribute('aria-expanded', open);
+  });
+
+  const doGenerate = async () => {
+    const apiKey = localStorage.getItem('chroma-api-key') || '';
+    const status = document.getElementById('moodboard-status');
+    status.textContent = 'Generating…';
+    status.classList.remove('hidden', 'error');
+
+    try {
+      await ensureFonts();
+      state.moodboardContent = await generateMoodboardContent({
+        apiKey,
+        colors: currentPalette,
+      });
+      state.moodboardDirty = false;
+
+      const canvas = document.getElementById('moodboard-canvas');
+      await drawMoodboard(canvas, currentPalette, state.moodboardContent, MODES[state.mode].label);
+
+      document.getElementById('moodboard-canvas-wrap').style.display = '';
+      document.getElementById('export-moodboard').style.display      = '';
+      document.getElementById('regenerate-moodboard').style.display  = '';
+      document.getElementById('moodboard-dirty').style.display       = 'none';
+      status.classList.add('hidden');
+    } catch (err) {
+      status.textContent = `Error: ${err.message}`;
+      status.classList.remove('hidden');
+      status.classList.add('error');
+    }
+  };
+
+  document.getElementById('generate-moodboard').addEventListener('click', doGenerate);
+  document.getElementById('regenerate-moodboard').addEventListener('click', doGenerate);
+
+  document.getElementById('export-moodboard').addEventListener('click', () => {
+    const canvas = document.getElementById('moodboard-canvas');
+    const title  = state.moodboardContent?.title ?? 'moodboard';
+    exportMoodboardPNG(canvas, title);
+  });
+}
+
+// ── Contrast rendering ────────────────────────────────────────────────
+
+function renderContrast() {
+  renderContrastFull(currentPalette, {
+    summaryEl: document.getElementById('cc-summary'),
+    safeEl:    document.getElementById('cc-safe'),
+    gridEl:    document.getElementById('cc-grid'),
+  });
 }
 
 // ── Export feedback ───────────────────────────────────────────────────
