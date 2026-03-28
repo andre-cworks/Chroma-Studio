@@ -185,6 +185,71 @@
     </div>
   </section>
 
+  <!-- Logo Creator -->
+  <section id="logo-section" class="logo-section">
+    <button id="logo-toggle" class="prompt-toggle" aria-expanded="false">
+      <div class="prompt-toggle-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 2 17 12 22 22 17 22 7 12 2"/>
+        </svg>
+        <span>Logo Creator</span>
+      </div>
+      <svg id="logo-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="logo-body" class="prompt-body" aria-hidden="true">
+      <div class="logo-inner">
+
+        <div class="logo-controls">
+          <div class="logo-control-row">
+            <label for="logo-text-input">Brand Name</label>
+            <input type="text" id="logo-text-input" placeholder="Your Brand" maxlength="32" value="Your Brand" />
+          </div>
+
+          <div class="logo-control-row">
+            <label>
+              Typography
+              <span class="logo-font-badge" id="logo-font-badge">Inter</span>
+            </label>
+            <div class="logo-font-row">
+              <select id="logo-font-select" class="logo-select"></select>
+              <button id="logo-suggest-font" class="btn-secondary">✦ Suggest</button>
+            </div>
+            <span id="logo-font-status" class="logo-font-status"></span>
+          </div>
+
+          <div class="logo-control-row">
+            <label>Form</label>
+            <div id="logo-forms" class="logo-btn-group"></div>
+          </div>
+
+          <div class="logo-control-row">
+            <label>Color Mode</label>
+            <div id="logo-color-modes" class="logo-btn-group"></div>
+          </div>
+
+          <div class="logo-control-row" id="logo-layout-row" style="display:none">
+            <label>Layout</label>
+            <div class="logo-layout-toggle">
+              <button class="logo-layout-btn active" data-layout="horizontal">⟷ Horizontal</button>
+              <button class="logo-layout-btn" data-layout="vertical">↕ Vertical</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="logo-canvas-wrap">
+          <canvas id="logo-canvas" class="logo-canvas"></canvas>
+        </div>
+
+        <div class="logo-export-row">
+          <button id="logo-export-png" class="btn-secondary">Export PNG</button>
+          <button id="logo-export-svg" class="btn-secondary">Export SVG</button>
+          <span id="logo-export-status" class="logo-font-status"></span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
   <!-- Moodboard -->
   <section id="moodboard-section" class="moodboard-section">
     <button id="moodboard-toggle" class="prompt-toggle" aria-expanded="false">
