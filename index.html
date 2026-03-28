@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chroma Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
@@ -159,6 +162,42 @@
 
     </section>
   </div>
+
+  <!-- Moodboard -->
+  <section id="moodboard-section" class="moodboard-section">
+    <button id="moodboard-toggle" class="prompt-toggle" aria-expanded="false">
+      <div class="prompt-toggle-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/>
+          <rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>
+        </svg>
+        <span>AI Moodboard</span>
+      </div>
+      <svg id="moodboard-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="moodboard-body" class="prompt-body" aria-hidden="true">
+      <div class="moodboard-inner">
+        <p class="moodboard-desc">
+          A client-ready visual composition built entirely from your palette — solid color blocks, gradients,
+          geometric patterns, typographic tiles, and a 60&thinsp;·&thinsp;30&thinsp;·&thinsp;10 ratio bar.
+          AI writes the board title, phrase, material labels, and mood words.
+          <small>Uses the Anthropic API key entered in the <em>AI Prompt Generator</em> section below.</small>
+        </p>
+        <div class="moodboard-toolbar">
+          <button id="generate-moodboard" class="btn-primary">Generate Moodboard</button>
+          <button id="regenerate-moodboard" class="btn-secondary" style="display:none">Regenerate</button>
+          <button id="export-moodboard" class="btn-secondary" style="display:none">Export PNG</button>
+        </div>
+        <div id="moodboard-status" class="prompt-status hidden"></div>
+        <div id="moodboard-dirty" class="moodboard-dirty" style="display:none">
+          ✦ Palette changed — click Regenerate to refresh.
+        </div>
+        <div id="moodboard-canvas-wrap" class="moodboard-canvas-wrap" style="display:none">
+          <canvas id="moodboard-canvas" class="moodboard-canvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Prompt Generator -->
   <section id="prompt-section" class="prompt-section">

@@ -4,6 +4,7 @@ import { ColorWheel } from './colorWheel.js';
 import { loadPalettes, savePalettes, createPalette } from './storage.js';
 import { handleExport } from './export.js';
 import { CONTEXTS, MOODS, generatePrompt } from './promptGenerator.js';
+import { ensureFonts, generateMoodboardContent, drawMoodboard, exportMoodboardPNG } from './moodboard.js';
 
 // ── State ─────────────────────────────────────────────────────────────
 
@@ -19,6 +20,8 @@ const state = {
   promptContext: 'Branding',
   promptMoods:   [],
   generatedPrompt: '',
+  moodboardContent: null,   // {title, phrase, textures, moodWords} | null
+  moodboardDirty: false,
 };
 
 let wheel = null;
@@ -73,10 +76,19 @@ function updateAll() {
   updatePromptStrip();
   updateSlidersGradients();
 
-  // If prompt is open, invalidate generated prompt
+  // Invalidate generated prompt when palette changes
   if (state.generatedPrompt) {
     state.generatedPrompt = '';
     renderGeneratedPrompt();
+  }
+
+  // Mark moodboard as stale (don't redraw — it's a snapshot)
+  if (state.moodboardContent !== null && !state.moodboardDirty) {
+    state.moodboardDirty = true;
+    const dirty = document.getElementById('moodboard-dirty');
+    if (dirty) dirty.style.display = '';
+    const regen = document.getElementById('regenerate-moodboard');
+    if (regen) regen.style.display = '';
   }
 }
 
@@ -620,6 +632,52 @@ function bindEvents() {
   // Restore API key
   const savedKey = localStorage.getItem('chroma-api-key');
   if (savedKey) document.getElementById('api-key-input').value = savedKey;
+
+  // ── Moodboard ────────────────────────────────────────────────────
+  document.getElementById('moodboard-toggle').addEventListener('click', () => {
+    const open  = document.getElementById('moodboard-body').classList.toggle('open');
+    document.getElementById('moodboard-body').setAttribute('aria-hidden', !open);
+    document.getElementById('moodboard-arrow').classList.toggle('rotated', open);
+    document.getElementById('moodboard-toggle').setAttribute('aria-expanded', open);
+  });
+
+  const doGenerate = async () => {
+    const apiKey = localStorage.getItem('chroma-api-key') || '';
+    const status = document.getElementById('moodboard-status');
+    status.textContent = 'Generating…';
+    status.classList.remove('hidden', 'error');
+
+    try {
+      await ensureFonts();
+      state.moodboardContent = await generateMoodboardContent({
+        apiKey,
+        colors: currentPalette,
+      });
+      state.moodboardDirty = false;
+
+      const canvas = document.getElementById('moodboard-canvas');
+      await drawMoodboard(canvas, currentPalette, state.moodboardContent, MODES[state.mode].label);
+
+      document.getElementById('moodboard-canvas-wrap').style.display = '';
+      document.getElementById('export-moodboard').style.display      = '';
+      document.getElementById('regenerate-moodboard').style.display  = '';
+      document.getElementById('moodboard-dirty').style.display       = 'none';
+      status.classList.add('hidden');
+    } catch (err) {
+      status.textContent = `Error: ${err.message}`;
+      status.classList.remove('hidden');
+      status.classList.add('error');
+    }
+  };
+
+  document.getElementById('generate-moodboard').addEventListener('click', doGenerate);
+  document.getElementById('regenerate-moodboard').addEventListener('click', doGenerate);
+
+  document.getElementById('export-moodboard').addEventListener('click', () => {
+    const canvas = document.getElementById('moodboard-canvas');
+    const title  = state.moodboardContent?.title ?? 'moodboard';
+    exportMoodboardPNG(canvas, title);
+  });
 }
 
 // ── Export feedback ───────────────────────────────────────────────────
