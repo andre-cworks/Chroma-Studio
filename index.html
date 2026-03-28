@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chroma Studio</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <!-- Mobile bottom sheet overlay -->
+  <div id="sheet-overlay" class="sheet-overlay"></div>
+
+  <!-- Saved Palettes — Mobile Bottom Sheet -->
+  <div id="mobile-sheet" class="mobile-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h3>Saved Palettes</h3>
+      <button id="close-sheet" class="btn-icon" aria-label="Close">✕</button>
+    </div>
+    <div id="mobile-palettes" class="mobile-palettes-list"></div>
+  </div>
+
+  <div class="app-layout">
+
+    <!-- LEFT: Saved Palettes Sidebar (desktop) -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Saved</span>
+        <button id="toggle-sidebar" class="btn-icon" title="Toggle sidebar" aria-label="Toggle sidebar">◀</button>
+      </div>
+      <div id="sidebar-content" class="sidebar-content">
+        <div id="sidebar-palettes" class="sidebar-palettes"></div>
+      </div>
+      <div id="sidebar-mini" class="sidebar-mini"></div>
+    </aside>
+
+    <!-- CENTER: Color Wheel + Controls -->
+    <main class="center-panel">
+      <header class="app-header">
+        <div class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="4" fill="currentColor"/>
+            <circle cx="12" cy="4" r="1.5" fill="currentColor"/>
+            <circle cx="19.2" cy="8" r="1.5" fill="currentColor"/>
+            <circle cx="19.2" cy="16" r="1.5" fill="currentColor"/>
+            <circle cx="12" cy="20" r="1.5" fill="currentColor"/>
+            <circle cx="4.8" cy="16" r="1.5" fill="currentColor"/>
+            <circle cx="4.8" cy="8" r="1.5" fill="currentColor"/>
+          </svg>
+          <span class="logo-text">Chroma Studio</span>
+        </div>
+        <div class="header-actions">
+          <button id="open-palettes-mobile" class="btn-secondary mobile-only">Saved</button>
+          <button id="theme-toggle" class="btn-icon" title="Toggle theme" aria-label="Toggle theme">
+            <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="wheel-wrapper">
+        <div class="wheel-container">
+          <canvas id="color-wheel"></canvas>
+          <div id="wheel-overlay" class="wheel-overlay hidden">
+            <span class="overlay-label">Lightness fixed by mode</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hsl-readout">
+        <span id="readout-h" class="readout-value"><span class="readout-label">H</span> <span id="val-h">214</span>°</span>
+        <span id="readout-s" class="readout-value"><span class="readout-label">S</span> <span id="val-s">70</span>%</span>
+        <span id="readout-l" class="readout-value"><span class="readout-label">L</span> <span id="val-l">50</span>%</span>
+      </div>
+
+      <div id="sliders-section" class="sliders-section">
+        <div id="lightness-control" class="slider-control">
+          <label for="lightness-slider">Lightness</label>
+          <div class="slider-track-wrap">
+            <div class="slider-track" id="lightness-track"></div>
+            <input type="range" id="lightness-slider" min="5" max="95" value="50" />
+          </div>
+        </div>
+        <div id="saturation-control" class="slider-control">
+          <label for="saturation-slider">Saturation</label>
+          <div class="slider-track-wrap">
+            <div class="slider-track" id="saturation-track"></div>
+            <input type="range" id="saturation-slider" min="0" max="100" value="70" />
+          </div>
+        </div>
+        <div id="slider-info" class="slider-info hidden">
+          <span class="info-icon">ⓘ</span>
+          <span id="slider-info-text">Values are fixed by this mode</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT: Mode Tabs + Palette + Preview + Export -->
+    <section class="right-panel">
+
+      <!-- Harmony Mode Selector -->
+      <div class="mode-section">
+        <div class="tab-bar" role="tablist">
+          <button class="tab-btn active" data-tab="wheel" role="tab" aria-selected="true">Wheel</button>
+          <button class="tab-btn" data-tab="light" role="tab" aria-selected="false">Light</button>
+          <button class="tab-btn" data-tab="concept" role="tab" aria-selected="false">Concept</button>
+        </div>
+        <div id="mode-grid" class="mode-grid"></div>
+      </div>
+
+      <!-- Palette Panel -->
+      <div class="palette-section">
+        <div class="section-header">
+          <h3>Palette</h3>
+          <button id="save-palette" class="btn-secondary">Save</button>
+        </div>
+        <div id="palette-swatches" class="palette-swatches"></div>
+      </div>
+
+      <!-- Preview Card -->
+      <div class="preview-section">
+        <div class="section-header">
+          <h3>Preview</h3>
+        </div>
+        <div id="preview-card" class="preview-card">
+          <div id="preview-bg" class="preview-bg">
+            <div class="preview-top">
+              <div id="preview-mode-name" class="preview-mode-label">Complementary</div>
+              <div class="preview-dot-row">
+                <div class="preview-dot" style="background:#fff;opacity:0.3"></div>
+                <div class="preview-dot" style="background:#fff;opacity:0.3"></div>
+                <div class="preview-dot" style="background:#fff;opacity:0.3"></div>
+              </div>
+            </div>
+            <div class="preview-body">
+              <div class="preview-heading" id="preview-heading">Color Harmony</div>
+              <div class="preview-sub" id="preview-sub">Beautiful palette for your project</div>
+              <div id="preview-chips" class="preview-chips"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="export-section">
+        <div class="section-header">
+          <h3>Export</h3>
+        </div>
+        <div class="export-buttons">
+          <button class="btn-export" data-format="css">CSS Vars</button>
+          <button class="btn-export" data-format="json">JSON</button>
+          <button class="btn-export" data-format="tailwind">Tailwind</button>
+          <button class="btn-export" data-format="png">Save PNG</button>
+        </div>
+        <div id="export-feedback" class="export-feedback hidden">Copied to clipboard!</div>
+      </div>
+
+    </section>
+  </div>
+
+  <!-- Prompt Generator -->
+  <section id="prompt-section" class="prompt-section">
+    <button id="prompt-toggle" class="prompt-toggle" aria-expanded="false">
+      <div class="prompt-toggle-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span>AI Prompt Generator</span>
+      </div>
+      <svg id="prompt-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="prompt-body" class="prompt-body" aria-hidden="true">
+      <div class="prompt-inner">
+        <div class="prompt-controls">
+          <div class="prompt-row">
+            <label>Context</label>
+            <div id="context-selector" class="context-selector"></div>
+          </div>
+          <div class="prompt-row">
+            <label>Mood <small>(multi-select)</small></label>
+            <div id="mood-tags" class="mood-tags"></div>
+          </div>
+          <div class="prompt-row">
+            <label for="prompt-detail">Detail <small>(optional)</small></label>
+            <textarea id="prompt-detail" placeholder="Add scene, subject, or composition details…" rows="2"></textarea>
+          </div>
+          <div class="prompt-row">
+            <label for="api-key-input">Anthropic API Key <small>(stored in browser)</small></label>
+            <input type="password" id="api-key-input" placeholder="sk-ant-api03-…" autocomplete="off" />
+          </div>
+        </div>
+
+        <div id="prompt-color-strip" class="prompt-color-strip"></div>
+
+        <div class="prompt-actions">
+          <button id="generate-prompt" class="btn-primary">Generate Prompt</button>
+          <button id="regenerate-prompt" class="btn-secondary" style="display:none">Regenerate</button>
+          <button id="copy-prompt" class="btn-secondary" style="display:none">Copy</button>
+        </div>
+        <div id="prompt-status" class="prompt-status hidden"></div>
+        <div id="prompt-output" class="prompt-output" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
