@@ -60,6 +60,16 @@
         </div>
       </header>
 
+      <!-- Harmony Mode Selector — lives above the wheel in both layouts -->
+      <div class="mode-section">
+        <div class="tab-bar" role="tablist">
+          <button class="tab-btn active" data-tab="wheel" role="tab" aria-selected="true">Wheel</button>
+          <button class="tab-btn" data-tab="light" role="tab" aria-selected="false">Light</button>
+          <button class="tab-btn" data-tab="concept" role="tab" aria-selected="false">Concept</button>
+        </div>
+        <div id="mode-grid" class="mode-grid"></div>
+      </div>
+
       <div class="wheel-wrapper">
         <div class="wheel-container">
           <canvas id="color-wheel"></canvas>
@@ -97,18 +107,8 @@
       </div>
     </main>
 
-    <!-- RIGHT: Mode Tabs + Palette + Preview + Export -->
+    <!-- RIGHT: Palette + Preview + Export -->
     <section class="right-panel">
-
-      <!-- Harmony Mode Selector -->
-      <div class="mode-section">
-        <div class="tab-bar" role="tablist">
-          <button class="tab-btn active" data-tab="wheel" role="tab" aria-selected="true">Wheel</button>
-          <button class="tab-btn" data-tab="light" role="tab" aria-selected="false">Light</button>
-          <button class="tab-btn" data-tab="concept" role="tab" aria-selected="false">Concept</button>
-        </div>
-        <div id="mode-grid" class="mode-grid"></div>
-      </div>
 
       <!-- Palette Panel -->
       <div class="palette-section">
