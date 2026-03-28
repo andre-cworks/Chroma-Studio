@@ -5,6 +5,7 @@ import { loadPalettes, savePalettes, createPalette } from './storage.js';
 import { handleExport } from './export.js';
 import { CONTEXTS, MOODS, generatePrompt } from './promptGenerator.js';
 import { ensureFonts, generateMoodboardContent, drawMoodboard, exportMoodboardPNG } from './moodboard.js';
+import { updatePill, renderFull as renderContrastFull } from './contrast.js';
 
 // ── State ─────────────────────────────────────────────────────────────
 
@@ -22,6 +23,7 @@ const state = {
   generatedPrompt: '',
   moodboardContent: null,   // {title, phrase, textures, moodWords} | null
   moodboardDirty: false,
+  contrastOpen: false,
 };
 
 let wheel = null;
@@ -81,6 +83,10 @@ function updateAll() {
     state.generatedPrompt = '';
     renderGeneratedPrompt();
   }
+
+  // Contrast checker — pill always live, grid only if open
+  updatePill(document.getElementById('cc-pill'), currentPalette);
+  if (state.contrastOpen) renderContrast();
 
   // Mark moodboard as stale (don't redraw — it's a snapshot)
   if (state.moodboardContent !== null && !state.moodboardDirty) {
@@ -581,6 +587,18 @@ function bindEvents() {
     applyTheme(isLight ? 'dark' : 'light');
   });
 
+  // Contrast toggle
+  document.getElementById('contrast-toggle').addEventListener('click', () => {
+    state.contrastOpen = !state.contrastOpen;
+    const body  = document.getElementById('contrast-body');
+    const arrow = document.getElementById('contrast-arrow');
+    body.classList.toggle('open', state.contrastOpen);
+    body.setAttribute('aria-hidden', !state.contrastOpen);
+    arrow.classList.toggle('rotated', state.contrastOpen);
+    document.getElementById('contrast-toggle').setAttribute('aria-expanded', state.contrastOpen);
+    if (state.contrastOpen) renderContrast();
+  });
+
   // Prompt toggle
   document.getElementById('prompt-toggle').addEventListener('click', () => {
     state.promptOpen = !state.promptOpen;
@@ -677,6 +695,16 @@ function bindEvents() {
     const canvas = document.getElementById('moodboard-canvas');
     const title  = state.moodboardContent?.title ?? 'moodboard';
     exportMoodboardPNG(canvas, title);
+  });
+}
+
+// ── Contrast rendering ────────────────────────────────────────────────
+
+function renderContrast() {
+  renderContrastFull(currentPalette, {
+    summaryEl: document.getElementById('cc-summary'),
+    safeEl:    document.getElementById('cc-safe'),
+    gridEl:    document.getElementById('cc-grid'),
   });
 }
 

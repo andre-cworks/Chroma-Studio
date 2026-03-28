@@ -987,6 +987,180 @@ input[type="range"]::-moz-range-track { height: 8px; border-radius: 4px; backgro
   gap: 8px;
 }
 
+/* ── Contrast Checker ────────────────────────────────────────────── */
+.contrast-section {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.contrast-inner {
+  padding: 0 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Pill in toggle button */
+.cc-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  margin-left: auto;
+  margin-right: 10px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transition: background var(--transition), color var(--transition);
+}
+.cc-pill[data-level="bad"]  { background: rgba(255,107,107,0.12); color: var(--danger); }
+.cc-pill[data-level="warn"] { background: rgba(220,170,0,0.12);   color: #c9a400; }
+.cc-pill[data-level="ok"]   { background: rgba(90,219,150,0.12);  color: var(--success); }
+
+/* Summary row */
+.cs-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--surface-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+.cs-stat b  { color: var(--text); font-variant-numeric: tabular-nums; }
+.cs-stat em { color: var(--text-muted); font-style: normal; }
+.cs-stat.cs-warn b { color: var(--danger); }
+.cs-sep { color: var(--text-faint); font-size: 15px; }
+
+/* Safe pairs callout */
+.cs-safe {
+  background: rgba(90,219,150,0.05);
+  border: 1px solid rgba(90,219,150,0.22);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.cs-safe-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cs-safe-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--success);
+}
+.cs-safe-label svg { width: 12px; height: 12px; flex-shrink: 0; }
+.cs-safe-count { font-size: 11px; color: var(--text-muted); }
+
+.cs-safe-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cs-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 54px;
+  border-radius: var(--radius-sm);
+  gap: 1px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  cursor: default;
+  flex-shrink: 0;
+}
+.cs-chip-aa    { font-size: 19px; font-weight: 700; line-height: 1; }
+.cs-chip-ratio { font-size: 9px;  font-weight: 600; opacity: 0.78; }
+.cs-empty-note { font-size: 13px; color: var(--text-muted); font-style: italic; }
+
+/* Pair card grid */
+.cc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+}
+
+.cc-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface-hi);
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+@media (hover: hover) {
+  .cc-card:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+}
+.cc-card-dim { opacity: 0.48; }
+
+.cc-preview {
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 14px;
+}
+.cc-sample-aa   { font-size: 34px; font-weight: 700; line-height: 1; flex-shrink: 0; }
+.cc-sample-body { font-size: 11px; line-height: 1.55; opacity: 0.88; }
+
+.cc-meta {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cc-pair-id {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cc-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(128,128,128,0.25);
+}
+
+.cc-hex { font-size: 10px; font-family: var(--mono); color: var(--text-muted); }
+.cc-on  { font-size: 10px; color: var(--text-faint); }
+
+.cc-ratio-row { line-height: 1; }
+.cc-ratio {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.cc-unit { font-size: 13px; font-weight: 400; color: var(--text-muted); }
+
+.cc-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.cc-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.cc-badge-pass { background: rgba(90,219,150,0.15); color: var(--success); }
+.cc-badge-fail { background: rgba(255,107,107,0.10); color: var(--danger); }
+
+@media (max-width: 860px) {
+  .cc-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
 /* ── Moodboard ───────────────────────────────────────────────────── */
 .moodboard-section {
   background: var(--surface);
