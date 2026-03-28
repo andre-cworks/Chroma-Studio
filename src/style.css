@@ -1363,6 +1363,116 @@ input[type="range"]::-moz-range-track { height: 8px; border-radius: 4px; backgro
   box-shadow: var(--shadow);
 }
 
+/* ── Visual Identity ─────────────────────────────────────────────── */
+.brand-section {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+#brand-body.open {
+  max-height: 2400px;
+}
+
+.brand-inner {
+  padding: 0 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.brand-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.brand-desc small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+.brand-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.brand-control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.brand-control-row > label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+#brand-name-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background: var(--surface-hi);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+#brand-name-input:focus { border-color: var(--accent); }
+
+.brand-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.brand-canvas-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.brand-canvas {
+  display: block;
+  width: 100%;
+  max-width: 1400px;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.brand-export-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.brand-token-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.brand-token-select {
+  padding: 6px 8px;
+  font-size: 12px;
+  background: var(--surface-hi);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   :root { --sidebar-w: 220px; }
