@@ -413,6 +413,105 @@ export function drawLogoCanvas(canvas, { palette, text, font, form, colorMode, l
   ctx.fillText(`${fLabel}  ·  ${mLabel}`, CW / 2, 12);
 }
 
+// ── All-forms PNG export ──────────────────────────────────────────────
+
+export function exportAllFormsPNG({ palette, text, font, colorMode, layout = 'horizontal', name }) {
+  const HEADER_H      = 36;
+  const ROW_LABEL_H   = 24;
+  const ROW_BG_LABEL_H = 24;
+  const ROW_GAP       = 20;
+  const BOTTOM_PAD    = 24;
+  const ROW_H         = ROW_LABEL_H + TILE_H + ROW_BG_LABEL_H;
+  const totalH        = HEADER_H + LOGO_FORMS.length * ROW_H + (LOGO_FORMS.length - 1) * ROW_GAP + BOTTOM_PAD;
+
+  const offscreen     = document.createElement('canvas');
+  offscreen.width     = CW;
+  offscreen.height    = totalH;
+
+  const ctx = offscreen.getContext('2d');
+  ctx.fillStyle = '#0d0d12';
+  ctx.fillRect(0, 0, CW, totalH);
+
+  const darkest  = [...palette].sort((a, b) => a.l - b.l)[0].hex;
+  const safeText = text.trim() || 'Brand';
+  const mLabel   = COLOR_MODES.find(m => m.key === colorMode)?.label ?? colorMode;
+
+  // Header label
+  ctx.font         = '500 12px -apple-system, sans-serif';
+  ctx.fillStyle    = 'rgba(228,228,240,0.22)';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`${font}  ·  ${mLabel}  ·  All Forms`, CW / 2, 12);
+
+  const tileBgs = [
+    { hex: '#ffffff', label: 'White' },
+    { hex: '#111118', label: 'Black' },
+    { hex: darkest,   label: 'Darkest' },
+  ];
+
+  LOGO_FORMS.forEach(({ key: form, label: formLabel }, rowIdx) => {
+    const rowY  = HEADER_H + rowIdx * (ROW_H + ROW_GAP);
+    const tileY = rowY + ROW_LABEL_H;
+
+    // Form label
+    ctx.font         = '600 11px -apple-system, sans-serif';
+    ctx.fillStyle    = 'rgba(228,228,240,0.50)';
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(formLabel.toUpperCase(), TILE_GAP, rowY + ROW_LABEL_H / 2);
+
+    tileBgs.forEach(({ hex: bgHex, label: bgLabel }, i) => {
+      const tx   = TILE_GAP + i * (TILE_W + TILE_GAP);
+      const tile = { x: tx, y: tileY, w: TILE_W, h: TILE_H, cx: tx + TILE_W / 2, cy: tileY + TILE_H / 2 };
+
+      ctx.save();
+      roundRect(ctx, tx, tileY, TILE_W, TILE_H, 12);
+      ctx.fillStyle = bgHex;
+      ctx.fill();
+      ctx.clip();
+
+      const resolved = resolveColors(colorMode, palette, bgHex);
+
+      switch (form) {
+        case 'wordmark':      renderWordmark(ctx, tile, safeText, font, resolved); break;
+        case 'monogram':      renderMonogram(ctx, tile, safeText, font, resolved); break;
+        case 'icon-wordmark': renderIconWordmark(ctx, tile, safeText, font, resolved, palette, bgHex, layout); break;
+        case 'badge':         renderBadge(ctx, tile, safeText, font, resolved, palette, bgHex); break;
+        case 'stacked':       renderStacked(ctx, tile, safeText, font, resolved, palette, bgHex); break;
+        case 'emblem':        renderEmblem(ctx, tile, safeText, font, resolved, palette, bgHex); break;
+        default:              renderWordmark(ctx, tile, safeText, font, resolved); break;
+      }
+
+      ctx.restore();
+
+      // BG label below tile
+      ctx.font         = '500 11px -apple-system, sans-serif';
+      ctx.fillStyle    = 'rgba(228,228,240,0.32)';
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(bgLabel, tx + TILE_W / 2, tileY + TILE_H + 8);
+    });
+  });
+
+  const filename = (name || 'logo') + '-all-forms.png';
+  if (/iP(ad|hone|od)/.test(navigator.userAgent)) {
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.write(`<!DOCTYPE html><html><body style="margin:0;background:#111"><img src="${offscreen.toDataURL('image/png')}" style="max-width:100%;display:block"><p style="font-family:-apple-system,sans-serif;color:#999;padding:12px;font-size:13px">Press and hold the image → Save to Photos</p></body></html>`);
+      w.document.close();
+    }
+    return;
+  }
+  offscreen.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+
 // ── PNG export ────────────────────────────────────────────────────────
 
 export function exportLogoPNG(canvas, name) {

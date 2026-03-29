@@ -9,7 +9,7 @@ import { updatePill, renderFull as renderContrastFull } from './contrast.js';
 import {
   FONT_POOL, LOGO_FORMS, COLOR_MODES,
   loadGoogleFont, suggestFont,
-  drawLogoCanvas, exportLogoPNG,
+  drawLogoCanvas, exportAllFormsPNG,
 } from './logoCreator.js';
 import {
   generateSheetContent, drawBrandSheet,
@@ -797,9 +797,15 @@ function bindEvents() {
   });
 
   document.getElementById('logo-export-png').addEventListener('click', () => {
-    const canvas = document.getElementById('logo-canvas');
-    const name   = document.getElementById('logo-text-input').value.trim() || 'logo';
-    exportLogoPNG(canvas, name);
+    const name = document.getElementById('logo-text-input').value.trim() || 'logo';
+    exportAllFormsPNG({
+      palette:   currentPalette,
+      text:      document.getElementById('logo-text-input').value,
+      font:      state.logoFont,
+      colorMode: state.logoColorMode,
+      layout:    state.logoLayout,
+      name,
+    });
   });
 
   // ── Visual Identity ──────────────────────────────────────────────
