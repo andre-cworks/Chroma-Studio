@@ -814,7 +814,12 @@ function bindEvents() {
     const blob = new Blob([svg], { type: 'image/svg+xml' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href = url; a.download = name + '.svg'; a.click();
+    a.href     = url;
+    a.download = name + '.svg';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
 

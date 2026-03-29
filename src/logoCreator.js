@@ -420,7 +420,12 @@ export function exportLogoPNG(canvas, name) {
   const url      = canvas.toDataURL('image/png');
   if (/iP(ad|hone|od)/.test(navigator.userAgent)) { window.open(url, '_blank'); return; }
   const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
+  a.href     = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 // ── SVG helpers ───────────────────────────────────────────────────────

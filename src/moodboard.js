@@ -486,6 +486,9 @@ export function exportMoodboardPNG(canvas, title = 'moodboard') {
     const a    = document.createElement('a');
     a.download = `chroma-${slug}.png`;
     a.href     = dataURL;
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   }
 }
