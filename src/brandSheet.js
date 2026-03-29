@@ -465,17 +465,15 @@ function drawDoDont(ctx, y0, palette) {
   const pairs   = getPairsWithBW(palette);
   const passing = pairs.filter(p => p.passAA);
   const failing  = pairs.filter(p => !p.passAALarge);
+  const weakFallback = [...pairs].sort((a, b) => a.ratio - b.ratio);
 
-  // 4 panels: do, don't, do, don't
-  const examples = [
-    { pair: passing[0], isDo: true  },
-    { pair: failing[0]  || pairs[pairs.length-1], isDo: false },
-    { pair: passing[1]  || passing[0], isDo: true  },
-    { pair: failing[1]  || pairs[pairs.length-2] || pairs[pairs.length-1], isDo: false },
-  ].filter(e => e.pair);
+  const doExamples   = passing.slice(0, 3).map(pair => ({ pair, isDo: true }));
+  const dontExamples = (failing.length ? failing : weakFallback).slice(0, 3).map(pair => ({ pair, isDo: false }));
+  const examples     = [...doExamples, ...dontExamples].filter(e => e.pair);
 
+  const n      = examples.length;
   const gap    = 10;
-  const panelW = Math.floor((CW - PAD*2 - gap*3) / 4);
+  const panelW = Math.floor((CW - PAD*2 - gap*(n-1)) / n);
   const panelH = 180;
 
   examples.forEach(({ pair, isDo }, i) => {
