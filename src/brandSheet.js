@@ -568,7 +568,12 @@ export async function drawBrandSheet(canvas, { palette, brandName, modeName, con
 
 export function exportSheetPNG(canvas, brandName) {
   if (/iP(ad|hone|od)/.test(navigator.userAgent)) {
-    window.open(canvas.toDataURL('image/png'), '_blank'); return;
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.write(`<!DOCTYPE html><html><body style="margin:0;background:#111"><img src="${canvas.toDataURL('image/png')}" style="max-width:100%;display:block"><p style="font-family:-apple-system,sans-serif;color:#999;padding:12px;font-size:13px">Press and hold the image → Save to Photos</p></body></html>`);
+      w.document.close();
+    }
+    return;
   }
   canvas.toBlob(blob => {
     const url = URL.createObjectURL(blob);
