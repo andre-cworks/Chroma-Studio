@@ -1,12 +1,16 @@
 export const CONTEXTS = [
   'Fashion', 'Architecture', 'Interior', 'Branding',
   'Nature', 'Product', 'Abstract Art', 'Web / UI',
+  'Editorial', 'Food & Beverage', 'Motion / Video',
+  'Game & 3D', 'Wellness', 'Outdoor / Sport',
 ];
 
 export const MOODS = [
   'Minimal', 'Luxe', 'Wabi-Sabi', 'Brutalist', 'Ethereal',
   'Retro', 'Futuristic', 'Organic', 'Bold', 'Serene',
   'Industrial', 'Romantic', 'Playful', 'Mysterious', 'Raw',
+  'Coastal', 'Nostalgic', 'Vibrant', 'Dark Academia',
+  'Cottagecore', 'Neon / Cyber', 'Earthy', 'High-Contrast', 'Dreamy',
 ];
 
 /**
