@@ -4,7 +4,7 @@
  */
 
 import { hexToRgb } from './colorUtils.js';
-import { getPairs }  from './contrast.js';
+import { getPairsWithBW } from './contrast.js';
 import { loadGoogleFont, FONT_POOL } from './logoCreator.js';
 
 // ── Constants ─────────────────────────────────────────────────────────
@@ -462,7 +462,7 @@ function drawDoDont(ctx, y0, palette) {
   divider(ctx, y); y += GAP;
   sectionLabel(ctx, y, '04', "Do / Don't"); y += 28;
 
-  const pairs   = getPairs(palette);
+  const pairs   = getPairsWithBW(palette);
   const passing = pairs.filter(p => p.passAA);
   const failing  = pairs.filter(p => !p.passAALarge);
 
