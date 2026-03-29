@@ -467,8 +467,8 @@ function drawDoDont(ctx, y0, palette) {
   const failing  = pairs.filter(p => !p.passAALarge);
   const weakFallback = [...pairs].sort((a, b) => a.ratio - b.ratio);
 
-  const doExamples   = passing.slice(0, 3).map(pair => ({ pair, isDo: true }));
-  const dontExamples = (failing.length ? failing : weakFallback).slice(0, 3).map(pair => ({ pair, isDo: false }));
+  const doExamples   = passing.slice(0, 4).map(pair => ({ pair, isDo: true }));
+  const dontExamples = (failing.length ? failing : weakFallback).slice(0, 4).map(pair => ({ pair, isDo: false }));
   const examples     = [...doExamples, ...dontExamples].filter(e => e.pair);
 
   const n      = examples.length;
@@ -507,10 +507,10 @@ function drawDoDont(ctx, y0, palette) {
     ctx.textAlign='right'; ctx.textBaseline='bottom';
     ctx.fillText(`${pair.ratio.toFixed(1)}:1  ${ll}`, px+panelW-10, y+panelH-8);
 
-    // Color chips
+    // Fg hex (left) — keep short to avoid overlap at narrow panel widths
     ctx.font=`10px ${MONO}`; ctx.fillStyle='#aaaacc';
     ctx.textAlign='left'; ctx.textBaseline='bottom';
-    ctx.fillText(`${pair.fg.hex} on ${pair.bg.hex}`, px+10, y+panelH-8);
+    ctx.fillText(pair.fg.hex, px+10, y+panelH-8);
 
     ctx.strokeStyle='#e0e0f0'; ctx.lineWidth=1;
     rr(ctx, px, y, panelW, panelH, 10); ctx.stroke();
