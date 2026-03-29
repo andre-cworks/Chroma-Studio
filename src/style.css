@@ -1089,13 +1089,12 @@ input[type="range"]::-moz-range-track { height: 8px; border-radius: 4px; backgro
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 8px;
-  max-height: 500px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 
 #contrast-body.open {
-  max-height: 9999px;
+  max-height: 620px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .cc-card {
