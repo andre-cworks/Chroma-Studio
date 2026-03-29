@@ -9,7 +9,7 @@ import { updatePill, renderFull as renderContrastFull } from './contrast.js';
 import {
   FONT_POOL, LOGO_FORMS, COLOR_MODES,
   loadGoogleFont, suggestFont,
-  drawLogoCanvas, exportLogoPNG, generateLogoSVG,
+  drawLogoCanvas, exportLogoPNG,
 } from './logoCreator.js';
 import {
   generateSheetContent, drawBrandSheet,
@@ -800,27 +800,6 @@ function bindEvents() {
     const canvas = document.getElementById('logo-canvas');
     const name   = document.getElementById('logo-text-input').value.trim() || 'logo';
     exportLogoPNG(canvas, name);
-  });
-
-  document.getElementById('logo-export-svg').addEventListener('click', () => {
-    const name = document.getElementById('logo-text-input').value.trim() || 'logo';
-    const svg  = generateLogoSVG({
-      palette:   currentPalette,
-      text:      document.getElementById('logo-text-input').value,
-      font:      state.logoFont,
-      form:      state.logoForm,
-      colorMode: state.logoColorMode,
-    });
-    const blob = new Blob([svg], { type: 'image/svg+xml' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = name + '.svg';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   });
 
   // ── Visual Identity ──────────────────────────────────────────────

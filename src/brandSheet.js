@@ -567,15 +567,17 @@ export async function drawBrandSheet(canvas, { palette, brandName, modeName, con
 // ── Exports ───────────────────────────────────────────────────────────
 
 export function exportSheetPNG(canvas, brandName) {
-  const url = canvas.toDataURL('image/png');
-  if (/iP(ad|hone|od)/.test(navigator.userAgent)) { window.open(url,'_blank'); return; }
-  const a = document.createElement('a');
-  a.href     = url;
-  a.download = (brandName.trim()||'brand') + '-identity.png';
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  if (/iP(ad|hone|od)/.test(navigator.userAgent)) {
+    window.open(canvas.toDataURL('image/png'), '_blank'); return;
+  }
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = (brandName.trim()||'brand') + '-identity.png';
+    a.style.display = 'none';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
 }
 
 export function exportSheetPDF(canvas, brandName) {

@@ -417,15 +417,17 @@ export function drawLogoCanvas(canvas, { palette, text, font, form, colorMode, l
 
 export function exportLogoPNG(canvas, name) {
   const filename = (name || 'logo') + '-sheet.png';
-  const url      = canvas.toDataURL('image/png');
-  if (/iP(ad|hone|od)/.test(navigator.userAgent)) { window.open(url, '_blank'); return; }
-  const a = document.createElement('a');
-  a.href     = url;
-  a.download = filename;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  if (/iP(ad|hone|od)/.test(navigator.userAgent)) {
+    window.open(canvas.toDataURL('image/png'), '_blank'); return;
+  }
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
 }
 
 // ── SVG helpers ───────────────────────────────────────────────────────
