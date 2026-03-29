@@ -476,16 +476,21 @@ Rules: Match vocabulary to the palette's actual character. Warm saturated colors
 // ── PNG export ────────────────────────────────────────────────────────
 
 export function exportMoodboardPNG(canvas, title = 'moodboard') {
-  const slug   = (title || 'moodboard').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  const dataURL = canvas.toDataURL('image/png');
-  const isIOS  = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (isIOS) {
-    const w = window.open();
-    w.document.write(`<img src="${dataURL}" style="max-width:100%"><p style="font-family:sans-serif;color:#666;padding:12px">Press and hold the image → Save to Photos</p>`);
-  } else {
-    const a    = document.createElement('a');
-    a.download = `chroma-${slug}.png`;
-    a.href     = dataURL;
-    a.click();
+  const slug = (title || 'moodboard').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.write(`<!DOCTYPE html><html><body style="margin:0;background:#111"><img src="${canvas.toDataURL('image/png')}" style="max-width:100%;display:block"><p style="font-family:-apple-system,sans-serif;color:#999;padding:12px;font-size:13px">Press and hold the image → Save to Photos</p></body></html>`);
+      w.document.close();
+    }
+    return;
   }
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = `chroma-${slug}.png`;
+    a.style.display = 'none';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
 }

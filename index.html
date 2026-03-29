@@ -185,14 +185,14 @@
     </div>
   </section>
 
-  <!-- Logo Creator -->
+  <!-- Logo Preview -->
   <section id="logo-section" class="logo-section">
     <button id="logo-toggle" class="prompt-toggle" aria-expanded="false">
       <div class="prompt-toggle-left">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="12 2 2 7 2 17 12 22 22 17 22 7 12 2"/>
         </svg>
-        <span>Logo Creator</span>
+        <span>Logo Preview</span>
       </div>
       <svg id="logo-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -242,8 +242,64 @@
 
         <div class="logo-export-row">
           <button id="logo-export-png" class="btn-secondary">Export PNG</button>
-          <button id="logo-export-svg" class="btn-secondary">Export SVG</button>
           <span id="logo-export-status" class="logo-font-status"></span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Visual Identity Sheet -->
+  <section id="brand-section" class="brand-section">
+    <button id="brand-toggle" class="prompt-toggle" aria-expanded="false">
+      <div class="prompt-toggle-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        <span>Visual Identity</span>
+      </div>
+      <svg id="brand-arrow" class="prompt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="brand-body" class="prompt-body" aria-hidden="true">
+      <div class="brand-inner">
+
+        <p class="brand-desc">
+          A client-ready brand color system — color roles, AI-generated names, usage rules, typography
+          pairing, live component mockups, and a Do/Don't contrast guide. Everything a developer or
+          client needs to implement the palette correctly.
+          <small>AI features use the key from the Prompt Generator section.</small>
+        </p>
+
+        <div class="brand-controls">
+          <div class="brand-control-row">
+            <label for="brand-name-input">Brand Name</label>
+            <input type="text" id="brand-name-input" placeholder="Your Brand" maxlength="40" value="Your Brand" />
+          </div>
+        </div>
+
+        <div class="brand-toolbar">
+          <button id="generate-brand" class="btn-primary">Generate Identity Sheet</button>
+          <button id="regenerate-brand" class="btn-secondary" style="display:none">Regenerate</button>
+          <span id="brand-status" class="prompt-status hidden"></span>
+        </div>
+
+        <div id="brand-canvas-wrap" class="brand-canvas-wrap" style="display:none">
+          <canvas id="brand-canvas" class="brand-canvas"></canvas>
+        </div>
+
+        <div id="brand-export-row" class="brand-export-row" style="display:none">
+          <button id="brand-export-png" class="btn-secondary">Export PNG</button>
+          <button id="brand-export-pdf" class="btn-secondary">Export PDF</button>
+          <div class="brand-token-group">
+            <button id="brand-export-tokens" class="btn-secondary">Copy Tokens</button>
+            <select id="brand-token-format" class="brand-token-select">
+              <option value="css">CSS Vars</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
+          <span id="brand-token-status" class="prompt-status hidden"></span>
         </div>
 
       </div>

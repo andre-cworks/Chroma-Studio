@@ -87,7 +87,10 @@ export function exportPNG(colors, modeName) {
     const a      = document.createElement('a');
     a.download   = `chroma-${modeName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.png`;
     a.href       = dataURL;
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   }
 }
 

@@ -28,22 +28,41 @@ export function contrastRatio(hex1, hex2) {
 // ── Pair generation ───────────────────────────────────────────────────
 // Directed pairs: every (fg, bg) with fg ≠ bg → n·(n–1) entries
 
+function makePair(fg, bg) {
+  const ratio = contrastRatio(fg.hex, bg.hex);
+  return { fg, bg, ratio, passAA: ratio >= 4.5, passAAA: ratio >= 7.0, passAALarge: ratio >= 3.0, passAAALarge: ratio >= 4.5 };
+}
+
 export function getPairs(palette) {
   const pairs = [];
   const n = palette.length;
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       if (i === j) continue;
-      const ratio = contrastRatio(palette[i].hex, palette[j].hex);
-      pairs.push({
-        fg:          palette[i],
-        bg:          palette[j],
-        ratio,
-        passAA:       ratio >= 4.5,
-        passAAA:      ratio >= 7.0,
-        passAALarge:  ratio >= 3.0,
-        passAAALarge: ratio >= 4.5,
-      });
+      pairs.push(makePair(palette[i], palette[j]));
+    }
+  }
+  return pairs.sort((a, b) => b.ratio - a.ratio);
+}
+
+// Palette pairs + each color crossed with black and white
+const BW = [{ hex: '#000000' }, { hex: '#ffffff' }];
+
+export function getPairsWithBW(palette) {
+  const pairs = [];
+  const n = palette.length;
+  // palette × palette
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue;
+      pairs.push(makePair(palette[i], palette[j]));
+    }
+  }
+  // each palette color × black and white (both directions)
+  for (const c of palette) {
+    for (const bw of BW) {
+      pairs.push(makePair(c, bw));
+      pairs.push(makePair(bw, c));
     }
   }
   return pairs.sort((a, b) => b.ratio - a.ratio);
@@ -62,7 +81,7 @@ export function getSummary(pairs) {
 
 export function updatePill(el, palette) {
   if (!el) return;
-  const pairs = getPairs(palette);
+  const pairs = getPairsWithBW(palette);
   const { passAA, total, failAll } = getSummary(pairs);
   el.textContent = `${passAA} / ${total} pass AA`;
   el.dataset.level = failAll === total ? 'bad'
@@ -105,7 +124,7 @@ function makePairCard(pair) {
 }
 
 export function renderFull(palette, { summaryEl, safeEl, gridEl }) {
-  const pairs   = getPairs(palette);
+  const pairs   = getPairsWithBW(palette);
   const { total, passAA, passAAA, failAll } = getSummary(pairs);
 
   // ── Summary row

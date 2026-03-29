@@ -9,8 +9,12 @@ import { updatePill, renderFull as renderContrastFull } from './contrast.js';
 import {
   FONT_POOL, LOGO_FORMS, COLOR_MODES,
   loadGoogleFont, suggestFont,
-  drawLogoCanvas, exportLogoPNG, generateLogoSVG,
+  drawLogoCanvas, exportAllFormsPNG,
 } from './logoCreator.js';
+import {
+  generateSheetContent, drawBrandSheet,
+  exportSheetPNG, exportSheetPDF, exportSheetTokens,
+} from './brandSheet.js';
 
 // ── State ─────────────────────────────────────────────────────────────
 
@@ -34,6 +38,8 @@ const state = {
   logoForm:      'wordmark',
   logoColorMode: 'primary',
   logoLayout:    'horizontal',
+  brandOpen:     false,
+  brandContent:  null,
 };
 
 let wheel = null;
@@ -791,25 +797,95 @@ function bindEvents() {
   });
 
   document.getElementById('logo-export-png').addEventListener('click', () => {
-    const canvas = document.getElementById('logo-canvas');
-    const name   = document.getElementById('logo-text-input').value.trim() || 'logo';
-    exportLogoPNG(canvas, name);
-  });
-
-  document.getElementById('logo-export-svg').addEventListener('click', () => {
     const name = document.getElementById('logo-text-input').value.trim() || 'logo';
-    const svg  = generateLogoSVG({
+    exportAllFormsPNG({
       palette:   currentPalette,
       text:      document.getElementById('logo-text-input').value,
       font:      state.logoFont,
-      form:      state.logoForm,
       colorMode: state.logoColorMode,
+      layout:    state.logoLayout,
+      name,
     });
-    const blob = new Blob([svg], { type: 'image/svg+xml' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = name + '.svg'; a.click();
-    URL.revokeObjectURL(url);
+  });
+
+  // ── Visual Identity ──────────────────────────────────────────────
+  document.getElementById('brand-toggle').addEventListener('click', () => {
+    state.brandOpen = !state.brandOpen;
+    const body  = document.getElementById('brand-body');
+    const arrow = document.getElementById('brand-arrow');
+    body.classList.toggle('open', state.brandOpen);
+    body.setAttribute('aria-hidden', !state.brandOpen);
+    arrow.classList.toggle('rotated', state.brandOpen);
+    document.getElementById('brand-toggle').setAttribute('aria-expanded', state.brandOpen);
+  });
+
+  const doGenerateBrand = async () => {
+    const apiKey    = localStorage.getItem('chroma-api-key') || '';
+    const brandName = document.getElementById('brand-name-input').value;
+    const status    = document.getElementById('brand-status');
+
+    status.textContent = 'Generating identity sheet…';
+    status.classList.remove('hidden', 'error');
+
+    try {
+      state.brandContent = await generateSheetContent({
+        apiKey,
+        colors:   currentPalette,
+        modeName: MODES[state.mode].label,
+      });
+    } catch {
+      // No API key or error — use defaults (content stays null)
+      state.brandContent = null;
+    }
+
+    try {
+      const canvas = document.getElementById('brand-canvas');
+      await drawBrandSheet(canvas, {
+        palette:   currentPalette,
+        brandName,
+        modeName:  MODES[state.mode].label,
+        content:   state.brandContent,
+      });
+
+      document.getElementById('brand-canvas-wrap').style.display = '';
+      document.getElementById('brand-export-row').style.display  = '';
+      document.getElementById('regenerate-brand').style.display  = '';
+      status.classList.add('hidden');
+    } catch (err) {
+      status.textContent = `Error: ${err.message}`;
+      status.classList.remove('hidden');
+      status.classList.add('error');
+    }
+  };
+
+  document.getElementById('generate-brand').addEventListener('click', doGenerateBrand);
+  document.getElementById('regenerate-brand').addEventListener('click', doGenerateBrand);
+
+  document.getElementById('brand-export-png').addEventListener('click', () => {
+    const name = document.getElementById('brand-name-input').value.trim();
+    exportSheetPNG(document.getElementById('brand-canvas'), name);
+  });
+
+  document.getElementById('brand-export-pdf').addEventListener('click', () => {
+    const name = document.getElementById('brand-name-input').value.trim();
+    exportSheetPDF(document.getElementById('brand-canvas'), name);
+  });
+
+  document.getElementById('brand-export-tokens').addEventListener('click', async () => {
+    const format = document.getElementById('brand-token-format').value;
+    const tokens = exportSheetTokens(currentPalette, format);
+    const status = document.getElementById('brand-token-status');
+    try {
+      await navigator.clipboard.writeText(tokens);
+      status.textContent = 'Copied!';
+    } catch {
+      const t = document.createElement('textarea');
+      t.value = tokens; document.body.appendChild(t); t.select();
+      document.execCommand('copy'); t.remove();
+      status.textContent = 'Copied!';
+    }
+    status.classList.remove('hidden');
+    setTimeout(() => status.classList.add('hidden'), 2000);
   });
 
   // ── Moodboard ────────────────────────────────────────────────────
