@@ -1,4 +1,4 @@
-import { hslToHex, contrastColor } from './colorUtils.js';
+import { hslToHex, hexToHsl, contrastColor } from './colorUtils.js';
 import { MODES, TAB_MODES, GRADIENT_MODES } from './harmonies.js';
 import { ColorWheel } from './colorWheel.js';
 import { loadPalettes, savePalettes, createPalette } from './storage.js';
@@ -129,6 +129,11 @@ function updateReadout() {
   document.getElementById('val-h').textContent = state.hue;
   document.getElementById('val-s').textContent = state.saturation;
   document.getElementById('val-l').textContent = state.lightness;
+
+  const hexInput = document.getElementById('hex-input');
+  if (document.activeElement !== hexInput) {
+    hexInput.value = hslToHex(state.hue, state.saturation, state.lightness).toUpperCase();
+  }
 }
 
 function updateSliders(m) {
@@ -610,6 +615,31 @@ function bindEvents() {
   document.getElementById('saturation-slider').addEventListener('input', e => {
     state.saturation = +e.target.value;
     updateAll();
+  });
+
+  // Hex input
+  const hexInput = document.getElementById('hex-input');
+  const commitHex = () => {
+    const raw = hexInput.value.trim();
+    const isValid = /^#?[0-9a-f]{6}$/i.test(raw);
+    if (!isValid) {
+      hexInput.classList.add('invalid');
+      return;
+    }
+    hexInput.classList.remove('invalid');
+    const [h, s, l] = hexToHsl(raw);
+    state.hue        = h;
+    state.saturation = s;
+    state.lightness  = l;
+    updateAll();
+  };
+  hexInput.addEventListener('input', () => hexInput.classList.remove('invalid'));
+  hexInput.addEventListener('change', commitHex);
+  hexInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      commitHex();
+      hexInput.blur();
+    }
   });
 
   // Tabs
