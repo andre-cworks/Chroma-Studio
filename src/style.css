@@ -334,6 +334,45 @@ input, textarea, select { font-family: inherit; }
   margin-right: 2px;
 }
 
+/* ── Hex Input ───────────────────────────────────────────────────── */
+.hex-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 8px;
+}
+
+.hex-input-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hex-input {
+  width: 120px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-hi);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.hex-input:focus {
+  outline: 1px solid var(--accent);
+  border-color: var(--accent);
+}
+
+.hex-input.invalid {
+  border-color: var(--danger);
+  outline: 1px solid var(--danger);
+}
+
 /* ── Sliders ─────────────────────────────────────────────────────── */
 .sliders-section {
   width: 100%;
